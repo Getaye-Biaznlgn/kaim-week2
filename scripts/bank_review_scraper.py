@@ -53,17 +53,31 @@ class BankReviewScraper:
             df = self.scrape_reviews_for_app(app["app_id"], app["bank"])
             if not df.empty:
                 self.all_data.append(df)
+            
 
-    def save_to_csv(self, filename: str = "bank_reviews_raw.csv"):
+    def save_to_csv(self, filename: str = "bank_reviews_raw.csv")-> pd.DataFrame:
         if self.all_data:
          try:
-            final_df = pd.concat(self.all_data, ignore_index=True)
-            final_df.to_csv(filename, index=False)
-            print(f"✅ Merged data saved to {filename} with {len(final_df)} total reviews.")
+           final_df = pd.concat(self.all_data, ignore_index=True)
+           final_df.to_csv(filename, index=False)
+           print(f"Length from save_to_csv = {len(final_df)}")
+           print(f"✅ Merged data saved to {filename} with {len(final_df)} total reviews.")
          except Exception as e:
             print(f"❌ Error saving to CSV: {e}")
 
         else:
             print("❌ No data to save.")
+        return final_df;  
 
- 
+    def preprocess_reviews_and_save(self, df: pd.DataFrame, filename: str = "bank_reviews_clean.csv") -> pd.DataFrame:
+        # Drop duplicates based on review content
+        df.drop_duplicates(subset='review', inplace=True)
+
+        # Drop rows with any missing values
+        df.dropna(inplace=True)
+
+        # Normalize date to YYYY-MM-DD
+        df['date'] = pd.to_datetime(df['date']).dt.date
+        df.to_csv(filename, index=False)
+        return df
+       
