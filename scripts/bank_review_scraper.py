@@ -80,4 +80,9 @@ class BankReviewScraper:
         df['date'] = pd.to_datetime(df['date']).dt.date
         df.to_csv(filename, index=False)
         return df
+    
+    def close(self):
+        if self.connection:
+            self.connection.close()
+            print("🔒 Oracle connection closed.")
        
